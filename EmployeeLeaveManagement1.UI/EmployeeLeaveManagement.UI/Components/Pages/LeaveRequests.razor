@@ -1,0 +1,141 @@
+﻿@page "/leave-requests"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject EmployeeService EmployeeService
+@inject LeaveRequestService LeaveRequestService
+
+<h3>Leave Requests</h3>
+
+@if (employees == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="mb-3">
+        <label>Select Employee</label>
+
+        <InputSelect class="form-control" @bind-Value="selectedEmployeeId">
+            <option value="0">-- Select Employee --</option>
+
+            @foreach (var employee in employees)
+            {
+                <option value="@employee.EmployeeId">
+                    @employee.FirstName @employee.LastName
+                </option>
+            }
+        </InputSelect>
+    </div>
+
+    <button class="btn btn-primary" @onclick="LoadLeaveRequests">
+        View Leave Requests
+    </button>
+}
+
+@if (leaveRequests != null)
+{
+    <hr />
+
+    @if (leaveRequests.Count == 0)
+    {
+        <p>No leave requests found.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Leave Type ID</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Applied Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var request in leaveRequests)
+                {
+                    <tr>
+                        <td>@request.LeaveRequestId</td>
+                        <td>@request.LeaveTypeId</td>
+                        <td>@request.FromDate.ToShortDateString()</td>
+                        <td>@request.ToDate.ToShortDateString()</td>
+                        <td>@request.Reason</td>
+                        <td>@request.Status</td>
+                        <td>@request.AppliedDate.ToShortDateString()</td>
+                        <td>
+                            @if (request.Status == "Pending")
+                            {
+                                <button class="btn btn-success btn-sm me-2"
+                                        @onclick="() => Approve(request.LeaveRequestId)">
+                                    Approve
+                                </button>
+
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="() => Reject(request.LeaveRequestId)">
+                                    Reject
+                                </button>
+                            }
+                            else
+                            {
+                                <span>No action</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private List<EmployeeDto>? employees;
+    private List<LeaveRequestDto>? leaveRequests;
+
+    private int selectedEmployeeId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await EmployeeService.GetEmployeesAsync();
+    }
+
+    private async Task LoadLeaveRequests()
+    {
+        if (selectedEmployeeId == 0)
+        {
+            leaveRequests = new List<LeaveRequestDto>();
+            return;
+        }
+
+        leaveRequests = await LeaveRequestService
+            .GetEmployeeLeaveRequestsAsync(selectedEmployeeId);
+    }
+    private async Task Approve(int id)
+    {
+        var success = await LeaveRequestService.ApproveLeaveAsync(id);
+
+        if (success)
+        {
+            leaveRequests = await LeaveRequestService
+                .GetEmployeeLeaveRequestsAsync(selectedEmployeeId);
+        }
+    }
+
+    private async Task Reject(int id)
+    {
+        var success = await LeaveRequestService.RejectLeaveAsync(id);
+
+        if (success)
+        {
+            leaveRequests = await LeaveRequestService
+                .GetEmployeeLeaveRequestsAsync(selectedEmployeeId);
+        }
+    }
+}

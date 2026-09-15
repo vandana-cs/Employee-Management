@@ -1,0 +1,108 @@
+﻿@page "/leave/apply"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject EmployeeService EmployeeService
+@inject LeaveTypeService LeaveTypeService
+@inject LeaveRequestService LeaveRequestService
+@inject NavigationManager Navigation
+
+<h3>Apply Leave</h3>
+
+@if (employees == null || leaveTypes == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="@request" OnValidSubmit="@Apply">
+
+        <div class="mb-3">
+            <label>Employee</label>
+            <InputSelect class="form-control" @bind-Value="request.EmployeeId">
+                <option value="0">-- Select Employee --</option>
+
+                @foreach (var employee in employees)
+                {
+                    <option value="@employee.EmployeeId">
+                        @employee.FirstName @employee.LastName
+                    </option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label>Leave Type</label>
+            <InputSelect class="form-control" @bind-Value="request.LeaveTypeId">
+                <option value="0">-- Select Leave Type --</option>
+
+                @foreach (var type in leaveTypes)
+                {
+                    <option value="@type.LeaveTypeId">
+                        @type.LeaveTypeName
+                    </option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label>From Date</label>
+            <InputDate class="form-control"
+                       @bind-Value="request.FromDate" />
+        </div>
+
+        <div class="mb-3">
+            <label>To Date</label>
+            <InputDate class="form-control"
+                       @bind-Value="request.ToDate" />
+        </div>
+
+        <div class="mb-3">
+            <label>Reason</label>
+            <InputText class="form-control"
+                       @bind-Value="request.Reason" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Apply Leave
+        </button>
+
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p class="mt-3">@message</p>
+}
+
+@code {
+
+    private List<EmployeeDto>? employees;
+    private List<LeaveTypeDto>? leaveTypes;
+
+    private CreateLeaveRequestDto request = new();
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await EmployeeService.GetEmployeesAsync();
+        leaveTypes = await LeaveTypeService.GetLeaveTypesAsync();
+    }
+
+    private async Task Apply()
+    {
+        var success = await LeaveRequestService.ApplyLeaveAsync(request);
+
+        if (success)
+        {
+            message = "Leave applied successfully.";
+        }
+        else
+        {
+            message = "Failed to apply leave.";
+        }
+    }
+}

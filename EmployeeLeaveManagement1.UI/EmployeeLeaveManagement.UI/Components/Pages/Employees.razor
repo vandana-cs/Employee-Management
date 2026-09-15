@@ -1,0 +1,1130 @@
+﻿@page "/employees"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject NavigationManager Navigation
+@inject EmployeeService EmployeeService
+@inject LeaveTypeService LeaveTypeService
+@inject LeaveRequestService LeaveRequestService
+
+<PageTitle>Employee Leave Management</PageTitle>
+
+<div class="dashboard">
+
+    <!-- =========================
+         WELCOME BANNER
+    ========================== -->
+
+    <section class="welcome-banner">
+
+        <div class="welcome-content">
+
+            <p class="welcome-small">
+                WELCOME BACK
+            </p>
+
+            <h1>
+                Employee Leave Management
+            </h1>
+
+            <p class="welcome-description">
+                Manage employees, leave types, applications, and approvals
+                from one simple dashboard.
+            </p>
+
+        </div>
+
+        <div class="welcome-illustration">
+            <div class="calendar-illustration">
+                📅
+            </div>
+
+            <div class="illustration-text">
+                <strong>Plan</strong>
+                <br />
+                <strong>Apply</strong>
+                <br />
+                <strong>Get Approved</strong>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         QUICK DASHBOARD CARDS
+    ========================== -->
+
+    <section class="dashboard-cards">
+
+        <button class="dashboard-card employees-card"
+                @onclick="GoEmployees">
+
+            <div class="card-icon">
+                👥
+            </div>
+
+            <h3>
+                Employees
+            </h3>
+
+            <p>
+                View and manage employee details.
+            </p>
+
+            <span class="card-arrow">
+                →
+            </span>
+
+        </button>
+
+
+        <button class="dashboard-card add-card"
+                @onclick="GoAddEmployee">
+
+            <div class="card-icon">
+                ➕
+            </div>
+
+            <h3>
+                Add Employee
+            </h3>
+
+            <p>
+                Add a new employee to the system.
+            </p>
+
+            <span class="card-arrow">
+                →
+            </span>
+
+        </button>
+
+
+        <button class="dashboard-card types-card"
+                @onclick="GoLeaveTypes">
+
+            <div class="card-icon">
+                📋
+            </div>
+
+            <h3>
+                Leave Types
+            </h3>
+
+            <p>
+                View available leave types and limits.
+            </p>
+
+            <span class="card-arrow">
+                →
+            </span>
+
+        </button>
+
+
+        <button class="dashboard-card apply-card"
+                @onclick="GoApplyLeave">
+
+            <div class="card-icon">
+                📝
+            </div>
+
+            <h3>
+                Apply Leave
+            </h3>
+
+            <p>
+                Submit a new employee leave request.
+            </p>
+
+            <span class="card-arrow">
+                →
+            </span>
+
+        </button>
+
+
+        <button class="dashboard-card requests-card"
+                @onclick="GoLeaveRequests">
+
+            <div class="card-icon">
+                🗓️
+            </div>
+
+            <h3>
+                Leave Requests
+            </h3>
+
+            <p>
+                View, approve, or reject leave requests.
+            </p>
+
+            <span class="card-arrow">
+                →
+            </span>
+
+        </button>
+
+    </section>
+
+
+    <!-- =========================
+         DASHBOARD CONTENT
+    ========================== -->
+    @if (isLoading)
+    {
+        <section class="loading-panel">
+            <div class="loading-icon">
+                ⏳
+            </div>
+
+            <strong>
+                Loading dashboard...
+            </strong>
+        </section>
+    }
+    else
+    {
+
+        <!-- =========================
+             THREE COLUMN OVERVIEW
+        ========================== -->
+
+        <section class="dashboard-overview">
+
+
+            <!-- LEAVE OVERVIEW -->
+
+            <div class="dashboard-panel overview-panel">
+
+                <div class="panel-heading">
+
+                    <div class="panel-heading-icon">
+                        📅
+                    </div>
+
+                    <div>
+                        <h2>
+                            Leave Overview
+                        </h2>
+
+                        <p>
+                            Summary of leave requests
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+                    <div class="stat-card total-stat">
+
+                        <div class="stat-icon">
+                            📅
+                        </div>
+
+                        <div>
+                            <strong>
+                                @totalRequests
+                            </strong>
+
+                            <span>
+                                Total Requests
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card pending-stat">
+
+                        <div class="stat-icon">
+                            🕐
+                        </div>
+
+                        <div>
+                            <strong>
+                                @pendingRequests
+                            </strong>
+
+                            <span>
+                                Pending
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card approved-stat">
+
+                        <div class="stat-icon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <strong>
+                                @approvedRequests
+                            </strong>
+
+                            <span>
+                                Approved
+                            </span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="stat-card rejected-stat">
+
+                        <div class="stat-icon">
+                            ✕
+                        </div>
+
+                        <div>
+                            <strong>
+                                @rejectedRequests
+                            </strong>
+
+                            <span>
+                                Rejected
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 LEAVE TYPE CHART
+            ========================== -->
+
+            <div class="dashboard-panel chart-panel">
+
+                <div class="panel-heading">
+
+                    <div class="panel-heading-icon chart-heading-icon">
+                        ◕
+                    </div>
+
+                    <div>
+                        <h2>
+                            Leave Requests by Type
+                        </h2>
+
+                        <p>
+                            Distribution of leave types
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if (leaveTypeChart.Count == 0)
+                {
+                    <div class="empty-chart">
+                        <div>
+                            📊
+                        </div>
+
+                        <span>
+                            No leave requests available
+                        </span>
+                    </div>
+                }
+                else
+                {
+                    <div class="chart-container">
+
+                        <div class="donut-chart"
+                             style="@DonutStyle">
+
+                            <div class="donut-center">
+
+                                <strong>
+                                    @totalRequests
+                                </strong>
+
+                                <span>
+                                    Requests
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="chart-legend">
+
+                            @foreach (var item in leaveTypeChart)
+                            {
+                                <div class="legend-item">
+
+                                    <span class="legend-dot"
+                                          style="background:@item.Color">
+                                    </span>
+
+                                    <span class="legend-name">
+                                        @item.Name
+                                    </span>
+
+                                    <strong>
+                                        @item.Percentage%
+                                    </strong>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- =========================
+                 RECENT ACTIVITY
+            ========================== -->
+
+            <div class="dashboard-panel activity-panel">
+
+                <div class="panel-heading">
+
+                    <div class="panel-heading-icon activity-heading-icon">
+                        ◷
+                    </div>
+
+                    <div>
+                        <h2>
+                            Recent Activity
+                        </h2>
+
+                        <p>
+                            Latest leave requests
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if (recentRequests.Count == 0)
+                {
+                    <div class="empty-activity">
+                        No leave requests found.
+                    </div>
+                }
+                else
+                {
+                    <div class="activity-list">
+
+                        @foreach (var item in recentRequests)
+                        {
+                            <div class="activity-item">
+
+                                <div class="activity-avatar">
+                                    @GetInitials(item.EmployeeName)
+                                </div>
+
+
+                                <div class="activity-details">
+
+                                    <strong>
+                                        @item.EmployeeName
+                                    </strong>
+
+                                    <span>
+                                        @item.LeaveTypeName
+                                        (@GetDays(item.Request) day@(GetDays(item.Request) == 1 ? "" : "s"))
+                                    </span>
+
+                                </div>
+
+
+                                <span class="status-badge @GetStatusClass(item.Request.Status)">
+                                    @item.Request.Status
+                                </span>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             WORKFLOW
+        ========================== -->
+
+        <section class="workflow-section">
+
+            <div class="workflow-heading">
+
+                <div class="workflow-heading-icon">
+                    📋
+                </div>
+
+                <div>
+
+                    <h2>
+                        Leave Workflow
+                    </h2>
+
+                    <p>
+                        Manage your employee leave process
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="workflow-list">
+
+                <div class="workflow-item">
+
+                    <span>
+                        01
+                    </span>
+
+                    <strong>
+                        Employees
+                    </strong>
+
+                    <p>
+                        View employee records
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <span>
+                        02
+                    </span>
+
+                    <strong>
+                        Leave Types
+                    </strong>
+
+                    <p>
+                        View leave limits
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <span>
+                        03
+                    </span>
+
+                    <strong>
+                        Apply Leave
+                    </strong>
+
+                    <p>
+                        Create leave request
+                    </p>
+
+                </div>
+
+
+                <div class="workflow-item">
+
+                    <span>
+                        04
+                    </span>
+
+                    <strong>
+                        Approvals
+                    </strong>
+
+                    <p>
+                        Approve or reject
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             QUICK ACTIONS
+        ========================== -->
+
+        <section class="quick-section">
+
+            <div class="section-heading">
+
+                <div class="section-heading-icon">
+                    ⚡
+                </div>
+
+                <div>
+
+                    <h2>
+                        Quick Actions
+                    </h2>
+
+                    <p>
+                        Commonly used actions
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+                <button class="quick-action-button"
+                        @onclick="GoAddEmployee">
+
+                    <span>
+                        ➕
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Add New Employee
+                        </strong>
+
+                        <small>
+                            Create an employee record
+                        </small>
+
+                    </div>
+
+                    <b>
+                        →
+                    </b>
+
+                </button>
+
+
+                <button class="quick-action-button"
+                        @onclick="GoApplyLeave">
+
+                    <span>
+                        📝
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Apply for Leave
+                        </strong>
+
+                        <small>
+                            Submit a leave application
+                        </small>
+
+                    </div>
+
+                    <b>
+                        →
+                    </b>
+
+                </button>
+
+
+                <button class="quick-action-button"
+                        @onclick="GoLeaveRequests">
+
+                    <span>
+                        ✅
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Review Leave Requests
+                        </strong>
+
+                        <small>
+                            Approve or reject requests
+                        </small>
+
+                    </div>
+
+                    <b>
+                        →
+                    </b>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             BOTTOM FEATURES
+        ========================== -->
+
+        <section class="bottom-features">
+
+            <div>
+
+                <span>
+                    🛡️
+                </span>
+
+                <div>
+
+                    <strong>
+                        Secure & Reliable
+                    </strong>
+
+                    <p>
+                        Your data is managed through the API.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    ⚡
+                </span>
+
+                <div>
+
+                    <strong>
+                        Fast & Efficient
+                    </strong>
+
+                    <p>
+                        Simple and easy to use.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    ☁️
+                </span>
+
+                <div>
+
+                    <strong>
+                        ASP.NET Core Web API
+                    </strong>
+
+                    <p>
+                        Connected to your existing backend.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    }
+
+</div>
+
+
+@code {
+
+    private bool isLoading = true;
+
+    private List<EmployeeDto> employees = new();
+
+    private List<LeaveTypeDto> leaveTypes = new();
+
+    private List<LeaveRequestDto> allRequests = new();
+
+    private List<RecentRequest> recentRequests = new();
+
+    private List<ChartItem> leaveTypeChart = new();
+
+
+    private int totalRequests;
+
+    private int pendingRequests;
+
+    private int approvedRequests;
+
+    private int rejectedRequests;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            employees = await EmployeeService.GetEmployeesAsync();
+
+            leaveTypes = await LeaveTypeService.GetLeaveTypesAsync();
+
+            allRequests = new List<LeaveRequestDto>();
+
+
+            /*
+             * Get leave requests for every employee.
+             * Your current backend service provides
+             * employee-specific leave requests.
+             */
+
+            foreach (var employee in employees)
+            {
+                var requests =
+                    await LeaveRequestService
+                        .GetEmployeeLeaveRequestsAsync(employee.EmployeeId);
+
+                if (requests != null)
+                {
+                    allRequests.AddRange(requests);
+                }
+            }
+
+
+            CalculateStatistics();
+
+            CreateLeaveTypeChart();
+
+            CreateRecentActivity();
+        }
+        catch
+        {
+            /*
+             * Keep the dashboard usable even if
+             * the API is temporarily unavailable.
+             */
+
+            employees ??= new List<EmployeeDto>();
+
+            leaveTypes ??= new List<LeaveTypeDto>();
+
+            allRequests ??= new List<LeaveRequestDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+
+    private void CalculateStatistics()
+    {
+        totalRequests = allRequests.Count;
+
+        pendingRequests = allRequests.Count(
+            x => string.Equals(
+                x.Status,
+                "Pending",
+                StringComparison.OrdinalIgnoreCase));
+
+        approvedRequests = allRequests.Count(
+            x => string.Equals(
+                x.Status,
+                "Approved",
+                StringComparison.OrdinalIgnoreCase));
+
+        rejectedRequests = allRequests.Count(
+            x => string.Equals(
+                x.Status,
+                "Rejected",
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+
+    private void CreateLeaveTypeChart()
+    {
+        leaveTypeChart = new List<ChartItem>();
+
+        if (allRequests.Count == 0)
+        {
+            return;
+        }
+
+
+        var groupedRequests =
+            allRequests
+                .GroupBy(x => x.LeaveTypeId)
+                .OrderByDescending(x => x.Count());
+
+
+        string[] chartColors =
+        {
+            "#4D8BFF",
+            "#42C89A",
+            "#F5A623",
+            "#B06CFF",
+            "#27B8C7",
+            "#FF6B8A"
+    };
+
+
+        int colorIndex = 0;
+
+        foreach (var group in groupedRequests)
+        {
+            var leaveType =
+                leaveTypes.FirstOrDefault(
+                    x => x.LeaveTypeId == group.Key);
+
+
+            string name =
+                leaveType?.LeaveTypeName
+                ?? $"Leave Type {group.Key}";
+
+
+            int count = group.Count();
+
+
+            double percentage =
+                (double)count / allRequests.Count * 100;
+
+
+            leaveTypeChart.Add(
+                new ChartItem
+                    {
+                        Name = name,
+                        Count = count,
+                        Percentage = Math.Round(
+                            percentage,
+                            0),
+                        Color =
+                            chartColors[
+                                colorIndex %
+                                chartColors.Length]
+                    });
+
+
+            colorIndex++;
+        }
+    }
+
+
+    private void CreateRecentActivity()
+    {
+        recentRequests = new List<RecentRequest>();
+
+
+        var latest =
+            allRequests
+                .OrderByDescending(x => x.AppliedDate)
+                .Take(4)
+                .ToList();
+
+
+        foreach (var request in latest)
+        {
+            var employee =
+                employees.FirstOrDefault(
+                    x => x.EmployeeId ==
+                         request.EmployeeId);
+
+
+            var leaveType =
+                leaveTypes.FirstOrDefault(
+                    x => x.LeaveTypeId ==
+                         request.LeaveTypeId);
+
+
+            string employeeName =
+                employee == null
+                    ? "Unknown Employee"
+                    : $"{employee.FirstName} {employee.LastName}".Trim();
+
+
+            string leaveTypeName =
+                leaveType?.LeaveTypeName
+                ?? "Leave";
+
+
+            recentRequests.Add(
+                new RecentRequest
+                    {
+                        Request = request,
+                        EmployeeName = employeeName,
+                        LeaveTypeName = leaveTypeName
+                    });
+        }
+    }
+
+
+    private int GetDays(LeaveRequestDto request)
+    {
+        var days =
+            (request.ToDate.Date -
+             request.FromDate.Date).Days + 1;
+
+        return Math.Max(days, 1);
+    }
+
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return "NA";
+        }
+
+
+        var parts =
+            name.Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries);
+
+
+        if (parts.Length == 1)
+        {
+            return parts[0]
+                .Substring(
+                    0,
+                    Math.Min(2, parts[0].Length))
+                .ToUpper();
+        }
+
+
+        return
+            $"{parts[0][0]}{parts[^1][0]}"
+            .ToUpper();
+    }
+
+
+    private string GetStatusClass(string status)
+    {
+        if (string.Equals(
+            status,
+            "Approved",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "status-approved";
+        }
+
+
+        if (string.Equals(
+            status,
+            "Rejected",
+            StringComparison.OrdinalIgnoreCase))
+        {
+            return "status-rejected";
+        }
+
+
+        return "status-pending";
+    }
+
+
+    private string DonutStyle
+    {
+        get
+        {
+            if (leaveTypeChart.Count == 0)
+            {
+                return
+                    "background: #e8edf7;";
+            }
+
+
+            var segments = new List<string>();
+
+            double currentPercentage = 0;
+
+
+            foreach (var item in leaveTypeChart)
+            {
+                double nextPercentage =
+                    currentPercentage +
+                    ((double)item.Count /
+                     totalRequests * 100);
+
+
+                segments.Add(
+                    $"{item.Color} " +
+                    $"{currentPercentage:F1}% " +
+                    $"{nextPercentage:F1}%");
+
+
+                currentPercentage =
+                    nextPercentage;
+            }
+
+
+            return
+                "background: conic-gradient(" +
+                string.Join(", ", segments) +
+                ");";
+        }
+    }
+
+
+    private void GoEmployees()
+    {
+        Navigation.NavigateTo("/employees");
+    }
+
+
+    private void GoAddEmployee()
+    {
+        Navigation.NavigateTo("/employees/add");
+    }
+
+
+    private void GoLeaveTypes()
+    {
+        Navigation.NavigateTo("/leave-types");
+    }
+
+
+    private void GoApplyLeave()
+    {
+        Navigation.NavigateTo("/leave/apply");
+    }
+
+
+    private void GoLeaveRequests()
+    {
+        Navigation.NavigateTo("/leave-requests");
+    }
+
+
+    private class ChartItem
+    {
+        public string Name { get; set; } = "";
+
+        public int Count { get; set; }
+
+        public double Percentage { get; set; }
+
+        public string Color { get; set; } = "";
+    }
+
+
+    private class RecentRequest
+    {
+        public LeaveRequestDto Request { get; set; } = new();
+
+        public string EmployeeName { get; set; } = "";
+
+        public string LeaveTypeName { get; set; } = "";
+    }
+
+}

@@ -1,0 +1,661 @@
+:root {
+    --primary-blue: #14265d;
+    --secondary-blue: #3157c9;
+    --text-dark: #172653;
+    --text-muted: #7180a5;
+    --white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f6f8ff;
+    color: var(--text-dark);
+}
+
+body {
+    min-height: 100vh;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+
+/* ==============================
+   MAIN LAYOUT
+================================ */
+
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f6f8ff;
+}
+
+.app-sidebar {
+    width: 180px;
+    min-width: 180px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient( 180deg, #142765 0%, #101f5b 55%, #111d55 100% );
+    color: white;
+}
+
+.app-main {
+    flex: 1;
+    min-width: 0;
+    background: #f6f8ff;
+}
+
+.page-content {
+    min-height: calc(100vh - 65px);
+}
+
+
+/* ==============================
+   SIDEBAR
+================================ */
+
+.sidebar-brand {
+    height: 86px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.brand-logo {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: white;
+    font-size: 21px;
+}
+
+.brand-text {
+    color: white;
+    font-size: 13px;
+    line-height: 1.25;
+    font-weight: 700;
+}
+
+.sidebar-navigation {
+    padding: 16px 10px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 10px;
+    margin-bottom: 5px;
+    border-radius: 7px;
+    color: #dce5ff;
+    font-size: 11px;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+    .sidebar-link:hover {
+        color: white;
+        background: rgba(255,255,255,0.10);
+    }
+
+    .sidebar-link.active {
+        color: white;
+        background: linear-gradient( 90deg, #6976d9, #717bd1 );
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+.sidebar-link-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 15px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 20px 16px;
+    color: rgba(255,255,255,0.55);
+}
+
+.footer-leaf {
+    font-size: 55px;
+    opacity: 0.35;
+}
+
+.sidebar-footer p {
+    margin: 10px 0 0;
+    font-size: 8px;
+    line-height: 1.5;
+}
+
+
+/* ==============================
+   TOP HEADER
+================================ */
+
+.top-header {
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: white;
+    border-bottom: 1px solid #e8ebf5;
+}
+
+.top-header-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #1b2d67;
+    font-size: 13px;
+}
+
+.header-logo {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #edf2ff;
+    font-size: 18px;
+}
+
+.top-header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #263568;
+    font-size: 11px;
+}
+
+.notification-icon {
+    font-size: 17px;
+    margin-right: 7px;
+}
+
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e8efff;
+    font-size: 16px;
+}
+
+
+/* ==============================
+   DASHBOARD
+================================ */
+
+.dashboard {
+    padding: 20px;
+    background: #f6f8ff;
+}
+
+
+/* Welcome banner */
+
+.welcome-banner {
+    min-height: 118px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    border-radius: 13px;
+    background: linear-gradient( 110deg, #e9eaff, #dcecff );
+    overflow: hidden;
+}
+
+.welcome-small {
+    margin: 0 0 6px;
+    color: #314da0;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.welcome-banner h1 {
+    margin: 0 0 7px;
+    color: #10245c;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.welcome-description {
+    max-width: 550px;
+    margin: 0;
+    color: #53679b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.welcome-icon {
+    padding-right: 25px;
+    font-size: 65px;
+}
+
+
+/* Dashboard cards */
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.dashboard-card {
+    position: relative;
+    min-height: 105px;
+    padding: 13px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    text-align: left;
+    color: inherit;
+    transition: 0.2s ease;
+}
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(45,65,130,0.12);
+    }
+
+    .dashboard-card h3 {
+        margin: 8px 0 4px;
+        color: #14265d;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .dashboard-card p {
+        max-width: 135px;
+        margin: 0;
+        color: #596b9b;
+        font-size: 9px;
+        line-height: 1.4;
+    }
+
+.card-icon {
+    width: 31px;
+    height: 31px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: white;
+    font-size: 16px;
+}
+
+.card-arrow {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+/* Card colors */
+
+.employees-card {
+    background: linear-gradient(145deg,#f0f6ff,#e6f0ff);
+    border-color: #d7e5ff;
+}
+
+.add-card {
+    background: linear-gradient(145deg,#e9fff7,#dff9f0);
+    border-color: #ccefe3;
+}
+
+.types-card {
+    background: linear-gradient(145deg,#fffaf0,#fff4d9);
+    border-color: #f5e4b8;
+}
+
+.apply-card {
+    background: linear-gradient(145deg,#fbf1ff,#f3e5ff);
+    border-color: #ead5ff;
+}
+
+.requests-card {
+    background: linear-gradient(145deg,#edf8ff,#e1f3ff);
+    border-color: #d0eaff;
+}
+
+
+/* ==============================
+   SECTIONS
+================================ */
+
+.overview-section,
+.quick-section {
+    padding: 16px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(45,65,130,0.05);
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 13px;
+}
+
+.section-heading-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e8efff;
+    font-size: 15px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    color: #14265d;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.section-heading p {
+    margin: 2px 0 0;
+    color: #7583a6;
+    font-size: 9px;
+}
+
+
+/* Workflow */
+
+.workflow-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 9px;
+}
+
+.workflow-item {
+    padding: 12px;
+    border: 1px solid #edf0fa;
+    border-radius: 8px;
+    background: #f7f9ff;
+}
+
+    .workflow-item span {
+        color: #526de0;
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    .workflow-item strong {
+        display: block;
+        margin-top: 5px;
+        color: #26386e;
+        font-size: 10px;
+    }
+
+    .workflow-item p {
+        margin: 4px 0 0;
+        color: #7b88a8;
+        font-size: 9px;
+    }
+
+
+/* Quick Actions */
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.quick-action-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #e5eafb;
+    border-radius: 9px;
+    background: white;
+    color: #243568;
+    text-align: left;
+}
+
+    .quick-action-button:hover {
+        background: #f4f7ff;
+    }
+
+    .quick-action-button > span {
+        font-size: 18px;
+    }
+
+    .quick-action-button div {
+        flex: 1;
+    }
+
+    .quick-action-button strong {
+        display: block;
+        font-size: 10px;
+    }
+
+    .quick-action-button small {
+        display: block;
+        margin-top: 3px;
+        color: #7b88a8;
+        font-size: 8px;
+    }
+
+    .quick-action-button b {
+        color: #5571d9;
+        font-size: 15px;
+    }
+
+
+/* ==============================
+   BOTTOM FEATURES
+================================ */
+
+.bottom-features {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 12px;
+    background: linear-gradient(110deg,#e9edff,#edf3ff);
+}
+
+    .bottom-features > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .bottom-features > div > span {
+            font-size: 21px;
+        }
+
+    .bottom-features strong {
+        color: #263a79;
+        font-size: 9px;
+    }
+
+    .bottom-features p {
+        margin: 3px 0 0;
+        color: #7382a8;
+        font-size: 7px;
+    }
+
+
+/* ==============================
+   COMMON PAGES
+================================ */
+
+.page-content h1,
+.page-content h2,
+.page-content h3 {
+    color: #172b68;
+    font-weight: 700;
+}
+
+.page-content > h3 {
+    margin: 20px;
+}
+
+.page-content table {
+    width: calc(100% - 40px);
+    margin: 0 20px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 5px 20px rgba(45,65,130,0.06);
+}
+
+    .page-content table thead {
+        background: #edf2ff;
+    }
+
+    .page-content table th {
+        color: #25376f;
+        font-weight: 700;
+        padding: 11px;
+        font-size: 11px;
+    }
+
+    .page-content table td {
+        padding: 11px;
+        font-size: 11px;
+    }
+
+
+/* Forms */
+
+.page-content form {
+    max-width: 650px;
+    margin: 20px;
+    padding: 22px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 5px 20px rgba(45,65,130,0.06);
+}
+
+.page-content label {
+    display: block;
+    margin-bottom: 6px;
+    color: #26386e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.page-content .form-control {
+    min-height: 40px;
+    border: 1px solid #dce3f5;
+    border-radius: 7px;
+}
+
+.page-content .btn-primary {
+    border: none;
+    border-radius: 7px;
+    background: linear-gradient(90deg,#3157c9,#526de0);
+    padding: 9px 18px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* ==============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 900px) {
+
+    .app-sidebar {
+        width: 180px;
+        min-width: 180px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: repeat(3,1fr);
+    }
+}
+
+@media (max-width: 650px) {
+
+    .app-layout {
+        display: block;
+    }
+
+    .app-sidebar {
+        width: 100%;
+        min-width: 100%;
+        min-height: auto;
+    }
+
+    .sidebar-navigation {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-link {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .workflow-list {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .bottom-features {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-icon {
+        display: none;
+    }
+}

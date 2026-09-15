@@ -1,0 +1,50 @@
+﻿@page "/leave-types"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject LeaveTypeService LeaveTypeService
+
+<h3>Leave Types</h3>
+
+@if (leaveTypes == null)
+{
+    <p>Loading...</p>
+}
+else if (leaveTypes.Count == 0)
+{
+    <p>No leave types found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Leave Type</th>
+                <th>Maximum Days</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var leaveType in leaveTypes)
+            {
+                <tr>
+                    <td>@leaveType.LeaveTypeId</td>
+                    <td>@leaveType.LeaveTypeName</td>
+                    <td>@leaveType.MaximumDays</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<LeaveTypeDto>? leaveTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        leaveTypes = await LeaveTypeService.GetLeaveTypesAsync();
+    }
+}

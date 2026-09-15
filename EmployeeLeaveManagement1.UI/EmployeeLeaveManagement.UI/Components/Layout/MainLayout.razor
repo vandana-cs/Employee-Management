@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-layout">
+
+    <aside class="app-sidebar">
+        <NavMenu />
+    </aside>
+
+    <main class="app-main">
+
+        <header class="top-header">
+
+            <div class="top-header-title">
+                <span class="header-logo">📅</span>
+                <strong>Employee Leave Management</strong>
+            </div>
+
+            <div class="top-header-user">
+                <span class="notification-icon">🔔</span>
+                <span class="user-avatar">👤</span>
+                <strong>Vandana CS</strong>
+                <span>⌄</span>
+            </div>
+
+        </header>
+
+        <section class="page-content">
+            @Body
+        </section>
+
+    </main>
+
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+
+    <a href="" class="reload">Reload</a>
+
+    <a class="dismiss">🗙</a>
+</div>
