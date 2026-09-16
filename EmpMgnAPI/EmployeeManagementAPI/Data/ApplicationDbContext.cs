@@ -17,6 +17,7 @@ namespace EmployeeManagementAPI.Data
 
         public DbSet<LeaveRequest> LeaveRequests { get; set; } = null!;
 
+        public DbSet<EmployeeLogin> EmployeeLogins { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -24,6 +25,16 @@ namespace EmployeeManagementAPI.Data
             modelBuilder.Entity<Employee>()
                 .HasIndex(e => e.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<EmployeeLogin>()
+    .HasIndex(x => x.Username)
+    .IsUnique();
+
+            modelBuilder.Entity<EmployeeLogin>()
+                .HasOne<Employee>()
+                .WithOne()
+                .HasForeignKey<EmployeeLogin>(x => x.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LeaveRequest>()
                 .HasOne(x => x.Employee)

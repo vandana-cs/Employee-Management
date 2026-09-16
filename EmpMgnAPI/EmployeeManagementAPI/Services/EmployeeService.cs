@@ -1,4 +1,5 @@
-﻿using EmployeeManagementAPI.DTOs;
+﻿using EmployeeManagementAPI.Data;
+using EmployeeManagementAPI.DTOs;
 using EmployeeManagementAPI.Models;
 using EmployeeManagementAPI.Repositories;
 
@@ -30,7 +31,7 @@ namespace EmployeeManagementAPI.Services
 
             if (existingEmployee != null)
             {
-                throw new Exception(
+                throw new InvalidOperationException(
                     "Employee with this email already exists.");
             }
 
@@ -40,7 +41,7 @@ namespace EmployeeManagementAPI.Services
                 LastName = dto.LastName,
                 Email = dto.Email,
                 JoiningDate = dto.JoiningDate,
-                IsActive = true
+                IsActive = dto.IsActive
             };
 
             return await _repository.AddAsync(employee);

@@ -1,6 +1,6 @@
 ﻿@page "/employees"
 @rendermode InteractiveServer
-
+@using EmployeeLeaveManagement.UI.Authentication
 @using EmployeeLeaveManagement.UI.Models
 @using EmployeeLeaveManagement.UI.Services
 
@@ -8,6 +8,7 @@
 @inject EmployeeService EmployeeService
 @inject LeaveTypeService LeaveTypeService
 @inject LeaveRequestService LeaveRequestService
+@inject AuthService AuthService
 
 <PageTitle>Employee Leave Management</PageTitle>
 
@@ -777,49 +778,67 @@
     {
         try
         {
-            employees = await EmployeeService.GetEmployeesAsync();
+            leaveTypes =
+                await LeaveTypeService.GetLeaveTypesAsync();
 
-            leaveTypes = await LeaveTypeService.GetLeaveTypesAsync();
-
-            allRequests = new List<LeaveRequestDto>();
-
-
-            /*
-             * Get leave requests for every employee.
-             * Your current backend service provides
-             * employee-specific leave requests.
-             */
-
-            foreach (var employee in employees)
+            if (AuthService.IsAdmin() || AuthService.IsHR())
             {
-                var requests =
-                    await LeaveRequestService
-                        .GetEmployeeLeaveRequestsAsync(employee.EmployeeId);
+                // Admin and HR can see all employees
+                employees =
+                    await EmployeeService.GetEmployeesAsync();
 
-                if (requests != null)
+                allRequests = new List<LeaveRequestDto>();
+
+                foreach (var employee in employees)
                 {
-                    allRequests.AddRange(requests);
+                    var requests =
+                        await LeaveRequestService
+                            .GetEmployeeLeaveRequestsAsync(
+                                employee.EmployeeId);
+
+                    if (requests != null)
+                    {
+                        allRequests.AddRange(requests);
+                    }
+                }
+            }
+            else if (AuthService.IsEmployee())
+            {
+                // Employee can see ONLY their own record
+                if (AuthService.CurrentUser?.EmployeeId != null)
+                {
+                    int employeeId =
+                        AuthService.CurrentUser.EmployeeId.Value;
+
+                    var employee =
+                        await EmployeeService
+                            .GetEmployeeAsync(employeeId);
+
+                    employees = employee == null
+                        ? new List<EmployeeDto>()
+                        : new List<EmployeeDto>
+                            {
+                        employee
+                            };
+
+                    var requests =
+                        await LeaveRequestService
+                            .GetEmployeeLeaveRequestsAsync(
+                                employeeId);
+
+                    allRequests =
+                        requests ?? new List<LeaveRequestDto>();
                 }
             }
 
-
             CalculateStatistics();
-
             CreateLeaveTypeChart();
-
             CreateRecentActivity();
         }
         catch
         {
-            /*
-             * Keep the dashboard usable even if
-             * the API is temporarily unavailable.
-             */
-
             employees ??= new List<EmployeeDto>();
-
             leaveTypes ??= new List<LeaveTypeDto>();
-
             allRequests ??= new List<LeaveRequestDto>();
         }
         finally
@@ -827,7 +846,6 @@
             isLoading = false;
         }
     }
-
 
     private void CalculateStatistics()
     {

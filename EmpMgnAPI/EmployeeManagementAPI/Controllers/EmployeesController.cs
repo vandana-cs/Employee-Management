@@ -2,6 +2,9 @@
 using EmployeeManagementAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 
+using ApiCreateEmployeeDto =
+    EmployeeManagementAPI.DTOs.CreateEmployeeDto;
+
 namespace EmployeeManagementAPI.Controllers
 {
     [ApiController]
@@ -39,11 +42,9 @@ namespace EmployeeManagementAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(
-            CreateEmployeeDto dto)
+        public async Task<IActionResult> Create(ApiCreateEmployeeDto dto)
         {
-            var employee =
-                await _service.AddAsync(dto);
+            var employee = await _service.AddAsync(dto);
 
             return CreatedAtAction(
                 nameof(GetById),

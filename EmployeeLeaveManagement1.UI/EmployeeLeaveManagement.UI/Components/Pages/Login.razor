@@ -1,0 +1,130 @@
+﻿@page "/login"
+@layout LoginLayout
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Authentication
+
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<div class="login-page">
+
+    <div class="login-card">
+
+        <div class="login-icon">
+            📅
+        </div>
+
+        <h2>Employee Leave Management</h2>
+
+        <p class="login-subtitle">
+            Sign in to continue
+        </p>
+
+        <EditForm Model="@loginModel"
+                  OnValidSubmit="@HandleLogin"
+                  FormName="LoginForm">
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Username
+                </label>
+
+                <InputText class="form-control"
+                           @bind-Value="loginModel.Username"
+                           placeholder="Enter username" />
+
+            </div>
+
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Password
+                </label>
+
+                <InputText class="form-control"
+                           type="password"
+                           @bind-Value="loginModel.Password"
+                           placeholder="Enter password" />
+
+            </div>
+
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+            }
+
+
+            <button type="submit"
+                    class="btn btn-primary w-100">
+
+                Login
+
+            </button>
+
+        </EditForm>
+
+
+        <div class="login-demo">
+
+            <strong>Demo Accounts</strong>
+
+            <p>
+                Admin: admin / admin123
+            </p>
+
+            <p>
+                HR: hr / hr123
+            </p>
+
+            <p>
+                Employee: vandana / employee123
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    private LoginModel loginModel = new();
+
+    private string errorMessage = "";
+
+    private void HandleLogin()
+    {
+        errorMessage = "";
+
+        var success =
+            AuthService.Login(
+                loginModel.Username,
+                loginModel.Password);
+
+        if (success)
+        {
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage =
+                "Invalid username or password.";
+        }
+    }
+
+
+    private class LoginModel
+    {
+        public string Username { get; set; } = "";
+
+        public string Password { get; set; } = "";
+    }
+}

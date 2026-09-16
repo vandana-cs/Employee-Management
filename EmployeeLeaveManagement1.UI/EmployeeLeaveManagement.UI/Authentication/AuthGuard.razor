@@ -1,0 +1,27 @@
+﻿@using EmployeeLeaveManagement.UI.Authentication
+
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+@if (AuthService.IsLoggedIn)
+{
+    @ChildContent
+}
+else
+{
+    <p>Redirecting to login...</p>
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (!AuthService.IsLoggedIn)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

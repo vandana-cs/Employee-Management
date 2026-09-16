@@ -1,0 +1,196 @@
+﻿@page "/leave-balance"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject EmployeeService EmployeeService
+@inject LeaveTypeService LeaveTypeService
+@inject LeaveRequestService LeaveRequestService
+
+<PageTitle>Leave Balance</PageTitle>
+
+<div class="container mt-4">
+
+    <h3>Leave Balance</h3>
+
+    <p class="text-muted">
+        Approved leave days are deducted from the employee's available
+        leave balance.
+    </p>
+
+    @if (employees == null || leaveTypes == null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <div class="mb-3">
+
+            <label class="form-label">
+                Select Employee
+            </label>
+
+            <InputSelect class="form-control"
+                         @bind-Value="selectedEmployeeId"
+                         @bind-Value:after="LoadBalance">
+
+                <option value="0">
+                    -- Select Employee --
+                </option>
+
+                @foreach (var employee in employees)
+                {
+                    <option value="@employee.EmployeeId">
+                        @employee.FirstName @employee.LastName
+                    </option>
+                }
+
+            </InputSelect>
+
+        </div>
+
+        @if (selectedEmployeeId != 0)
+        {
+            @if (balances.Count == 0)
+            {
+                <div class="alert alert-info">
+                    No leave information available.
+                </div>
+            }
+            else
+            {
+                <table class="table table-bordered table-hover">
+
+                    <thead>
+                        <tr>
+                            <th>Leave Type</th>
+                            <th>Maximum Days</th>
+                            <th>Approved Days</th>
+                            <th>Available Days</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var balance in balances)
+                        {
+                            <tr>
+
+                                <td>
+                                    @balance.LeaveTypeName
+                                </td>
+
+                                <td>
+                                    @balance.MaximumDays
+                                </td>
+
+                                <td>
+                                    @balance.ApprovedDays
+                                </td>
+
+                                <td>
+                                    <strong>
+                                        @balance.AvailableDays
+                                    </strong>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+            }
+        }
+    }
+
+</div>
+
+@code {
+
+    private List<EmployeeDto>? employees;
+
+    private List<LeaveTypeDto>? leaveTypes;
+
+    private List<LeaveRequestDto> leaveRequests = new();
+
+    private List<BalanceItem> balances = new();
+
+    private int selectedEmployeeId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees =
+            await EmployeeService.GetEmployeesAsync();
+
+        leaveTypes =
+            await LeaveTypeService.GetLeaveTypesAsync();
+    }
+
+    private async Task LoadBalance()
+    {
+        balances = new();
+
+        if (selectedEmployeeId == 0)
+        {
+            return;
+        }
+
+        leaveRequests =
+            await LeaveRequestService
+                .GetEmployeeLeaveRequestsAsync(selectedEmployeeId);
+
+        foreach (var leaveType in leaveTypes!)
+        {
+            var approvedRequests =
+                leaveRequests
+                    .Where(x =>
+                        x.LeaveTypeId == leaveType.LeaveTypeId &&
+                        string.Equals(
+                            x.Status,
+                            "Approved",
+                            StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            int approvedDays = 0;
+
+            foreach (var request in approvedRequests)
+            {
+                approvedDays +=
+                    (request.ToDate.Date -
+                     request.FromDate.Date).Days + 1;
+            }
+
+            int availableDays =
+                leaveType.MaximumDays - approvedDays;
+
+            balances.Add(
+                new BalanceItem
+                    {
+                        LeaveTypeName =
+                            leaveType.LeaveTypeName,
+
+                        MaximumDays =
+                            leaveType.MaximumDays,
+
+                        ApprovedDays =
+                            approvedDays,
+
+                        AvailableDays =
+                            Math.Max(availableDays, 0)
+                    });
+        }
+    }
+
+    private class BalanceItem
+    {
+        public string LeaveTypeName { get; set; } = "";
+
+        public int MaximumDays { get; set; }
+
+        public int ApprovedDays { get; set; }
+
+        public int AvailableDays { get; set; }
+    }
+}

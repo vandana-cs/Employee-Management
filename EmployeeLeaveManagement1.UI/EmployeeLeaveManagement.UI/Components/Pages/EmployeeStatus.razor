@@ -1,0 +1,144 @@
+﻿@page "/employee-status"
+@rendermode InteractiveServer
+
+@using EmployeeLeaveManagement.UI.Models
+@using EmployeeLeaveManagement.UI.Services
+
+@inject EmployeeService EmployeeService
+
+<PageTitle>Employee Status</PageTitle>
+
+<div class="container mt-4">
+
+    <h3>Employee Status</h3>
+
+    <p class="text-muted">
+        Employees who leave the company are marked as inactive.
+        Their records are retained and are not permanently deleted.
+    </p>
+
+    @if (employees == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (employees.Count == 0)
+    {
+        <div class="alert alert-info">
+            No employees found.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover">
+
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Employee Name</th>
+                    <th>Email</th>
+                    <th>Joining Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var employee in employees)
+                {
+                    <tr>
+
+                        <td>
+                            @employee.EmployeeId
+                        </td>
+
+                        <td>
+                            @employee.FirstName @employee.LastName
+                        </td>
+
+                        <td>
+                            @employee.Email
+                        </td>
+
+                        <td>
+                            @employee.JoiningDate.ToShortDateString()
+                        </td>
+
+                        <td>
+                            @if (employee.IsActive)
+                            {
+                                <span class="badge bg-success">
+                                    Active
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">
+                                    Inactive
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+
+                            @if (employee.IsActive)
+                            {
+                                <button class="btn btn-warning btn-sm"
+                                        @onclick="() => Deactivate(employee.EmployeeId)">
+                                    Deactivate
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Record retained
+                                </span>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    }
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info mt-3">
+            @message
+        </div>
+    }
+
+</div>
+
+@code {
+
+    private List<EmployeeDto>? employees;
+
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = await EmployeeService.GetEmployeesAsync();
+    }
+
+    private async Task Deactivate(int employeeId)
+    {
+        var success =
+            await EmployeeService.DeactivateEmployeeAsync(employeeId);
+
+        if (success)
+        {
+            message = "Employee has been marked as inactive. The employee record has not been deleted.";
+
+            employees = await EmployeeService.GetEmployeesAsync();
+        }
+        else
+        {
+            message = "Unable to deactivate employee.";
+        }
+    }
+}
